@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Slot Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(0,0,0,0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, select, button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        input[type="number"], select {
+            background: #333;
+            color: white;
+            width: 120px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255,107,107,0.4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slot-machine {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            border: 3px solid #ffd700;
+        }
+
+        .reel {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(180deg, #2d3748, #1a202c);
+            border: 3px solid #4a5568;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .reel.spinning {
+            animation: spin 0.5s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(360deg); }
+        }
+
+        .scatter {
+            color: #ff6b35 !important;
+            text-shadow: 0 0 20px #ff6b35;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: bounce 0.6s;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, -50%) scale(1); }
+            40% { transform: translate(-50%, -50%) scale(1.1); }
+            60% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .auto-spin {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d) !important;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .slot-machine {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 5px;
+                padding: 20px;
+            }
+            
+            .reel {
+                width: 60px;
+                height: 80px;
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎰 DEMO SLOT GAME 🎰</h1>
+        <p style="margin-bottom: 20px; opacity: 0.8;">*Hanya untuk demo & edukasi - Tidak untuk perjudian sungguhan*</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Bet:</label>
+                <input type="number" id="betAmount" value="10" min="1" max="1000">
+            </div>
+            <div class="control-group">
+                <label>Lines:</label>
+                <select id="lines">
+                    <option value="1">1</option>
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <button id="spinBtn">SPIN</button>
+            <button id="autoSpinBtn">AUTO SPIN</button>
+            <button id="maxBetBtn">MAX BET</button>
+        </div>
+
+        <div class="slot-machine" id="slotMachine">
+            <div class="reel" data-symbol="🍒">?</div>
+            <div class="reel" data-symbol="🍋">?</div>
+            <div class="reel" data-symbol="🍊">?</div>
+            <div class="reel" data-symbol="🍇">?</div>
+            <div class="reel" data-symbol="⭐">?</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div>Balance</div>
+                <div class="stat-value" id="balance">10000</div>
+            </div>
+            <div class="stat">
+                <div>Total Bet</div>
+                <div class="stat-value" id="totalBet">50</div>
+            </div>
+            <div class="stat">
+                <div>Win</div>
+                <div class="stat-value" id="win">0</div>
+            </div>
+            <div class="stat">
+                <div>Scatter</div>
+                <div class="stat-value" id="scatterCount">0</div>
+            </div>
+        </div>
+
+        <div class="win-message" id="winMessage"></div>
+    </div>
+
+    <script>
+        class SlotGame {
+            constructor() {
+                this.balance = 10000000;
+                this.betAmount = 10;
+                this.lines = 5;
+                this.isSpinning = false;
+                this.autoSpin = false;
+                this.scatterCount = 0;
+                this.symbols = ['🍒', '🍋', '🍊', '🍇', '⭐', '💎', '🔔', '7️⃣'];
+                
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateDisplay();
+            }
+
+            bindEvents() {
+                document.getElementById('betAmount').addEventListener('input', (e) => {
+                    this.betAmount = parseInt(e.target.value) || 10;
+                    this.updateDisplay();
+                });
+
+                document.getElementById('lines').addEventListener('change', (e) => {
+                    this.lines = parseInt(e.target.value);
+                    this.updateDisplay();
+                });
+
+                document.getElementById('spinBtn').addEventListener('click', () => this.spin());
+                document.getElementById('autoSpinBtn').addEventListener('click', () => this.toggleAutoSpin());
+                document.getElementById('maxBetBtn').addEventListener('click', () => this.maxBet());
+
+                // Keyboard support
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.spin();
+                    }
+                });
+            }
+
+            updateDisplay() {
+                document.getElementById('balance').textContent = this.balance.toLocaleString();
+                document.getElementById('totalBet').textContent = (this.betAmount * this.lines).toLocaleString();
+                document.getElementById('win').textContent = '0';
+                document.getElementById('scatterCount').textContent = this.scatterCount;
+            }
+
+            maxBet() {
+                this.betAmount = 100;
+                document.getElementById('betAmount').value = 100;
+                this.updateDisplay();
+            }
+
+            canSpin() {
+                const totalBet = this.betAmount * this.lines;
+                return this.balance >= totalBet && !this.isSpinning;
+            }
+
+            async spin() {
+                if (!this.canSpin()) {
+                    alert('Balance tidak cukup atau sedang spin!');
+                    return;
+                }
+
+                this.isSpinning = true;
+                document.getElementById('spinBtn').disabled = true;
+                document.getElementById('autoSpinBtn').disabled = true;
+
+                const totalBet = this.betAmount * this.lines;
+                this.balance -= totalBet;
+
+                // Animate reels
+                const reels = document.querySelectorAll('.reel');
+                reels.forEach(reel => {
+                    reel.classList.add('spinning');
+                    reel.textContent = '?';
+                });
+
+                // Simulate spin delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Generate results
+                const result = this.generateResult();
+                this.showResult(result, reels);
+
+                this.updateDisplay();
+                this.checkWin(result);
+
+                this.isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+                document.getElementById('autoSpinBtn').disabled = false;
+
+                if (this.autoSpin) {
+                    setTimeout(() => this.spin(), 1000);
+                }
+            }
+
+            generateResult() {
+                const result = [];
+                for (let i = 0; i < 5; i++) {
+                    // 5% chance for scatter
+                    if (Math.random() < 0.05) {
+                        result.push('⭐');
+                    } else {
+                        result.push(this.symbols[Math.floor(Math.random() * this.symbols.length)]);
+                    }
+                }
+                return result;
+            }
+
+            showResult(result, reels) {
+                reels.forEach((reel, index) => {
+                    reel.classList.remove('spinning');
+                    reel.textContent = result[index];
+                    if (result[index] === '⭐') {
+                        reel.classList.add('scatter');
+                        this.scatterCount++;
+                    } else {
+                        reel.classList.remove('scatter');
+                    }
+                });
+            }
+
+            checkWin(result) {
+                let winAmount = 0;
+
+                // Check scatter win (3+ scatters)
+                const scatterCount = result.filter(s => s === '⭐').length;
+                if (scatterCount >= 3) {
+                    winAmount += this.betAmount * 50 * scatterCount;
+                    this.showWinMessage(`SCATTER WIN! x${50 * scatterCount}`);
+                }
+
+                // Check line wins
+                const patterns = [
+                    [0,1,2,3,4], // Full line
+                    [0,1,2], [2,3,4], // Partial lines
+                    [1,2,3] // Middle
+                ];
+
+                for (let pattern of patterns) {
+                    const symbols = pattern.map(i => result[i]);
+                    if (this.isWinningCombo(symbols)) {
+                        winAmount += this.betAmount * this.getMultiplier(symbols);
+                    }
+                }
+
+                // Big win chance (10% chance for bonus)
+                if (Math.random() < 0.1 && winAmount === 0) {
+                    winAmount += this.betAmount * 100;
+                    this.showWinMessage('BIG WIN! 🎉');
+                }
+
+                if (winAmount > 0) {
+                    this.balance += winAmount;
+                    document.getElementById('win').textContent = winAmount.toLocaleString();
+                    this.showWinMessage(`WIN ${winAmount.toLocaleString()}`);
+                }
+
+                this.updateDisplay();
+            }
+
+            isWinningCombo(symbols) {
+                return symbols.every(s => s === symbols[0]);
+            }
+
+            getMultiplier(symbols) {
+                const symbolMultipliers = {
+                    '🍒': 2, '🍋': 3, '🍊': 4, '🍇': 5,
+                    '🔔': 10, '💎': 20, '7️⃣': 50
+                };
+                return symbolMultipliers[symbols[0]] || 2;
+            }
+
+            showWinMessage(message) {
+                const winMsg = document.getElementById('winMessage');
+                winMsg.textContent = message;
+                winMsg.style.display = 'block';
+                setTimeout(() => {
+                    winMsg.style.display = 'none';
+                }, 3000);
+            }
+
+            toggleAutoSpin() {
+                this.autoSpin = !this.autoSpin;
+                const btn = document.getElementById('autoSpinBtn');
+                btn.textContent = this.autoSpin ? 'STOP AUTO' : 'AUTO SPIN';
+                btn.classList.toggle('auto-spin', this.autoSpin);
+                
+                if (this.autoSpin) {
+                    this.spin();
+                }
+            }
+        }
+
+        // Start game
+        const game = new SlotGame();
+    </script>
+</body>
+  </html>
